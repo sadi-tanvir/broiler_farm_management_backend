@@ -16,7 +16,7 @@ const randomString = require("random-string")
 const chicksBuy = async (req, res) => {
     try {
 
-        const { company, quantity, price } = req.body;
+        const { company, quantity, price, salesDate } = req.body;
 
         // find user from data base
         const _user = await User.findOne({ email: req.user.email })
@@ -33,8 +33,8 @@ const chicksBuy = async (req, res) => {
             company,
             quantity,
             price,
-            time: moment().format("hh:mm:ss"),
-            date: moment().format("MM/DD/YYYY")
+            date: moment().format("MM/DD/YYYY") + " " + moment().format("hh:mm:ss"),
+            salesDate
         }
         const chicks = await User.findOneAndUpdate({ email: _user.email }, { $set: { Bring_chicks: temp } }, { new: true })
         if (!chicks) return res.status(400).json({ message: 'Chicks Added Successfully.' })
@@ -55,11 +55,13 @@ const chicksBuy = async (req, res) => {
 
 
 
-
+// chicks Update route
+// url: http://localhost:23629/chicks-update
+// method: PUT
 const chicksUpdate = async (req, res) => {
     try {
 
-        const { _id, id2, company, quantity, price, time, date } = req.body;
+        const { _id, id2, company, quantity, price, date, salesDate } = req.body;
 
         // find user from data base
         const _user = await User.findOne({ email: req.user.email })
@@ -74,8 +76,8 @@ const chicksUpdate = async (req, res) => {
             company,
             quantity,
             price,
-            time,
-            date
+            date,
+            salesDate
         }
         const chicksUpdate = await User.findOneAndUpdate(
             { email: _user.email },
@@ -149,7 +151,7 @@ const chicksDeath = async (req, res) => {
         const id_p2 = randomString({ length: 8, numeric: false, letters: true, special: false, exclude: ['a', 'b', '1'] });
 
         let RunTime = new Date().getHours()
-        
+
         const temp = {
             _id: ObjectId(),
             id2: id_p1 + id_p2,
@@ -209,7 +211,7 @@ const chicksDeathUpdate = async (req, res) => {
         )
 
         if (!_deathUpdate) return res.status(400).json({ message: 'death chicks update failed.' })
-        
+
         return res.status(200).json({
             message: 'chicks death updated succesfylly.',
             deathChicks: _deathUpdate.die_chicks

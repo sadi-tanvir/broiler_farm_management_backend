@@ -11,7 +11,7 @@ router.put('/chicks-buy', auth, chicksBuy)
 // chicks Update route
 router.put('/chicks-update', auth, chicksUpdate)
 
-// chicks Update route
+// chicks delete route
 router.put('/chicks-delete', auth, chicksDelete)
 
 
