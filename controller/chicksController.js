@@ -59,7 +59,7 @@ const chicksBuy = async (req, res) => {
 const chicksUpdate = async (req, res) => {
     try {
 
-        const { _id, id2, company, quantity, price,time, date } = req.body;
+        const { _id, id2, company, quantity, price, time, date } = req.body;
 
         // find user from data base
         const _user = await User.findOne({ email: req.user.email })
@@ -147,12 +147,15 @@ const chicksDeath = async (req, res) => {
         // update death count
         const id_p1 = randomString({ length: 8, numeric: false, letters: true, special: false, exclude: ['a', 'b', '1'] });
         const id_p2 = randomString({ length: 8, numeric: false, letters: true, special: false, exclude: ['a', 'b', '1'] });
+
+        let RunTime = new Date().getHours()
+        
         const temp = {
             _id: ObjectId(),
             id2: id_p1 + id_p2,
             death,
             reason,
-            time: moment().format("hh:mm:ss"),
+            time: RunTime < 12 ? `${moment().format("hh:mm:ss")} am` : `${moment().format("hh:mm:ss")} pm`,
             date: moment().format("DD/MM/YYYY")
         }
         const userData = await User.findOneAndUpdate({ email: _user.email }, { $push: { die_chicks: temp } }, { new: true })
@@ -206,7 +209,7 @@ const chicksDeathUpdate = async (req, res) => {
         )
 
         if (!_deathUpdate) return res.status(400).json({ message: 'death chicks update failed.' })
-
+        
         return res.status(200).json({
             message: 'chicks death updated succesfylly.',
             deathChicks: _deathUpdate.die_chicks

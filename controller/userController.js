@@ -119,10 +119,28 @@ const login = async (req, res) => {
         // generate token
         const token = jwt.sign({ email: _user.email }, process.env.SECRET_KEY, { expiresIn: '7d' })
 
+
+        // find all user from database
+        const _allUser = await User.find()
+
+        const allUseremail = _allUser.map((singleUser) => {
+            return {
+                _id: singleUser._id,
+                name: singleUser.name,
+                email: singleUser.email,
+                phone: singleUser.phone,
+                account_Confirmed: singleUser.account_Confirmed,
+                profile_pic: singleUser.profile_pic,
+                createdAt: singleUser.createdAt,
+            }
+        })
+
+
         // if the password has been matched.
         return res.status(200).json({
             message: 'User login successfully.',
             token: token,
+            users: allUseremail,
             user: {
                 name: _user.name,
                 email: _user.email,
@@ -212,42 +230,6 @@ const changeUserInfo = async (req, res) => {
 
 
 
-
-// all user information
-// url: http://localhost:23629/all-user-delete
-// method: GET
-const allUserData = async (req, res) => {
-    try {
-
-        const _allUser = await User.find()
-
-        const allUseremail = _allUser.map((singleUser) => {
-            return {
-                _id: singleUser._id,
-                name: singleUser.name,
-                email: singleUser.email,
-                phone: singleUser.phone,
-                account_Confirmed: singleUser.account_Confirmed,
-                profile_pic: singleUser.profile_pic,
-                createdAt: singleUser.createdAt,
-            }
-        })
-
-        res.json({
-            users: allUseremail
-        })
-
-    } catch (error) {
-        return res.status(500).json({
-            message: 'Database Error',
-            error
-        })
-    }
-}
-
-
-
-
 // all user information delete
 // url: http://localhost:23629/all-user-delete/:id
 // method: DELETE
@@ -296,6 +278,5 @@ module.exports = {
     activeAccount,
     login,
     changeUserInfo,
-    allUserData,
     allUserDelete
 }
