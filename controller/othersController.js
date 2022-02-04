@@ -1,5 +1,7 @@
-const User =require("../models/User.js")
-const moment =require("moment")
+const User = require("../models/User.js")
+const moment = require("moment")
+const ObjectId = require("mongodb").ObjectId;
+const randomString = require("random-string")
 
 
 
@@ -10,7 +12,7 @@ const moment =require("moment")
 const othersCost = async (req, res) => {
     try {
 
-        const { category, name, tk, description } = req.body;
+        const { category, name, tk } = req.body;
 
         // find user from data base
         const _user = await User.findOne({ email: req.user.email })
@@ -23,7 +25,7 @@ const othersCost = async (req, res) => {
         if (_user.others.length) {
             _user.others.map(cat => {
                 // if category exist, then duplicate value will be updated true
-                if (cat.category == category) {
+                if (cat.category == category.toLowerCase()) {
                     duplicate = true
                 }
             })
@@ -34,7 +36,7 @@ const othersCost = async (req, res) => {
             // create category
             const createCategory = await User.findOneAndUpdate(
                 { email: _user.email },
-                { $push: { others: { category: category, rent: [] } } }
+                { $push: { others: { category: category.toLowerCase(), rent: [] } } }
             )
             // if category not created
             if (!createCategory) return res.status(400).json({ message: 'category create failed.' })
@@ -42,14 +44,17 @@ const othersCost = async (req, res) => {
             // if category has created already , then value will update
             if (createCategory) {
                 // update inside the category value
+                const id_p1 = randomString({ length: 8, numeric: false, letters: true, special: false, exclude: ['a', 'b', '1'] });
+                const id_p2 = randomString({ length: 8, numeric: false, letters: true, special: false, exclude: ['a', 'b', '1'] });
                 const rentObj = {
+                    _id: ObjectId(),
+                    id2: id_p1 + id_p2,
                     name,
                     tk,
-                    description,
                     date: moment().format("DD/MM/YYYY")
                 }
                 const updateRent = await User.findOneAndUpdate(
-                    { email: _user.email, 'others.category': category },
+                    { email: _user.email, 'others.category': category.toLowerCase() },
                     { $push: { 'others.$.rent': rentObj } }
                 )
                 // if category value not updated
@@ -61,13 +66,16 @@ const othersCost = async (req, res) => {
 
         } else { // if category allready exists, then this code will run
             // update inside the existing category
+            const id_p1 = randomString({ length: 8, numeric: false, letters: true, special: false, exclude: ['a', 'b', '1'] });
+            const id_p2 = randomString({ length: 8, numeric: false, letters: true, special: false, exclude: ['a', 'b', '1'] });
             const rentObj = {
+                _id: ObjectId(),
+                id2: id_p1 + id_p2,
                 name,
                 tk,
-                description,
                 date: moment().format("DD/MM/YYYY")
             }
-            const updateRent = await User.findOneAndUpdate({ email: _user.email, 'others.category': category }, { $push: { 'others.$.rent': rentObj } })
+            const updateRent = await User.findOneAndUpdate({ email: _user.email, 'others.category': category.toLowerCase() }, { $push: { 'others.$.rent': rentObj } })
             if (!updateRent) return res.status(400).json({ message: 'rent update failed.' })
             return res.status(200).json({ message: 'rent update successfylly...' })
         }
@@ -81,6 +89,39 @@ const othersCost = async (req, res) => {
 };
 
 
+// others cost delete item
+// url: http://localhost:23629/others-cost-delete/:id
+// method: PUT
+const othersCostDelete = async (req, res) => {
+    try {
+
+        // find user from data base
+        const _user = await User.findOne({ email: req.user.email })
+        if (!_user) return res.status(400).json({ message: 'User not found.' })
+
+        const _deleteOthersItem = await User.findOneAndUpdate(
+            { email: _user.email },
+            { $pull: { others: { 'rent.$': { _id: ObjectId(req.params.id) } } } }
+        )
+
+        if (!_deleteOthersItem) return res.status(400).json({ message: 'Others Item delete failed.' })
+
+        // { email: _user.email, 'others.rent._id': ObjectId(req.params.id) },
+        // { $pull: { others: { 'rent.$': { _id: ObjectId(req.params.id) } } } }
+        
+
+        return res.status(200).json({
+            message: 'Deleted Successfully.',
+            _deleteOthersItem: _deleteOthersItem.others
+        })
+
+    } catch (error) {
+        return res.status(500).json({
+            message: 'Database Error',
+            error
+        })
+    }
+}
 
 
 
@@ -127,5 +168,6 @@ const othersCostData = async (req, res) => {
 
 module.exports = {
     othersCost,
-    othersCostData
+    othersCostData,
+    othersCostDelete
 }

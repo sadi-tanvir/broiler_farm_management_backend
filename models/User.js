@@ -30,7 +30,8 @@ const userSchema = new mongoose.Schema({
         default: {
             chicks: 0,
             price: 0,
-            bring_date: null
+            buyDate: null,
+            salesDate: null
         }
     },
     die_chicks: {
