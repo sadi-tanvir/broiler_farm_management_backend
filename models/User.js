@@ -3,7 +3,7 @@ const moment = require("moment")
 
 const userSchema = new mongoose.Schema({
     name: String,
-    username: String,
+    userId: String,
     email: String,
     password: String,
     phone: String,
@@ -31,7 +31,12 @@ const userSchema = new mongoose.Schema({
             chicks: 0,
             price: 0,
             buyDate: null,
-            salesDate: null
+        }
+    },
+    sales_info: {
+        type: Object,
+        default: {
+            sales_date: null,
         }
     },
     die_chicks: {

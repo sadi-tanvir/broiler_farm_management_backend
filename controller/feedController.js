@@ -38,12 +38,12 @@ const feedBringing = async (req, res) => {
         const updateFeed = await User.findOneAndUpdate({ email: _user.email }, { $push: { feed: temp } }, { new: true })
 
         // if update failed
-        if (!updateFeed) return res.status(400).json({ message: 'Feed bag update failed.' })
+        if (!updateFeed) return res.status(400).json({ message: 'Feed bag updating failed.' })
 
 
         // if success
         return res.status(200).json({
-            message: 'Feed Details Add Successfylly.',
+            message: 'Feed Details Added Successfylly.',
             buyFeed: updateFeed.feed
         })
 

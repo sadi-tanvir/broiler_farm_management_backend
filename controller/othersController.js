@@ -1,173 +1,145 @@
-const User = require("../models/User.js")
-const moment = require("moment")
+const User = require("../models/User.js");
+const moment = require("moment");
 const ObjectId = require("mongodb").ObjectId;
-const randomString = require("random-string")
+const randomString = require("random-string");
 
-
-
-
-// others cost
+// others cost add item
 // url: http://localhost:23629/others-cost
 // method: PUT
 const othersCost = async (req, res) => {
-    try {
+  try {
+    const { name, description, category, price } = req.body;
 
-        const { category, name, tk } = req.body;
-
-        // find user from data base
-        const _user = await User.findOne({ email: req.user.email })
-        if (!_user) return res.status(400).json({ message: 'User not found.' })
-
-        // use duplicate variable for checking category allready exist or not
-        var duplicate = false;
-
-        // check category exist or not
-        if (_user.others.length) {
-            _user.others.map(cat => {
-                // if category exist, then duplicate value will be updated true
-                if (cat.category == category.toLowerCase()) {
-                    duplicate = true
-                }
-            })
-        }
-
-        // if category has been not created allready
-        if (!duplicate) {
-            // create category
-            const createCategory = await User.findOneAndUpdate(
-                { email: _user.email },
-                { $push: { others: { category: category.toLowerCase(), rent: [] } } }
-            )
-            // if category not created
-            if (!createCategory) return res.status(400).json({ message: 'category create failed.' })
-
-            // if category has created already , then value will update
-            if (createCategory) {
-                // update inside the category value
-                const id_p1 = randomString({ length: 8, numeric: false, letters: true, special: false, exclude: ['a', 'b', '1'] });
-                const id_p2 = randomString({ length: 8, numeric: false, letters: true, special: false, exclude: ['a', 'b', '1'] });
-                const rentObj = {
-                    _id: ObjectId(),
-                    id2: id_p1 + id_p2,
-                    name,
-                    tk,
-                    date: moment().format("DD/MM/YYYY")
-                }
-                const updateRent = await User.findOneAndUpdate(
-                    { email: _user.email, 'others.category': category.toLowerCase() },
-                    { $push: { 'others.$.rent': rentObj } }
-                )
-                // if category value not updated
-                if (!updateRent) return res.status(400).json({ message: 'rent update failed.' })
-            }
-
-            // if all process successfully done
-            return res.status(200).json({ message: 'category create successfully...' })
-
-        } else { // if category allready exists, then this code will run
-            // update inside the existing category
-            const id_p1 = randomString({ length: 8, numeric: false, letters: true, special: false, exclude: ['a', 'b', '1'] });
-            const id_p2 = randomString({ length: 8, numeric: false, letters: true, special: false, exclude: ['a', 'b', '1'] });
-            const rentObj = {
-                _id: ObjectId(),
-                id2: id_p1 + id_p2,
-                name,
-                tk,
-                date: moment().format("DD/MM/YYYY")
-            }
-            const updateRent = await User.findOneAndUpdate({ email: _user.email, 'others.category': category.toLowerCase() }, { $push: { 'others.$.rent': rentObj } })
-            if (!updateRent) return res.status(400).json({ message: 'rent update failed.' })
-            return res.status(200).json({ message: 'rent update successfylly...' })
-        }
-
-    } catch (error) {
-        return res.status(500).json({
-            message: 'Database Error',
-            error
-        })
+    // find user from database
+    const _user = await User.findOne({ email: req.user.email });
+    if (!_user) {
+      return res.status(400).json({ message: "User not found." });
     }
-};
 
+    // add expense
+    const id_p1 = randomString({
+      length: 8,
+      numeric: false,
+      letters: true,
+      special: false,
+      exclude: ["a", "b", "1"],
+    });
+    const id_p2 = randomString({
+      length: 8,
+      numeric: false,
+      letters: true,
+      special: false,
+      exclude: ["a", "b", "1"],
+    });
+    const temp = {
+      _id: ObjectId(),
+      id2: id_p1 + id_p2,
+      name,
+      description,
+      category,
+      price,
+      date: moment().format("DD/MM/YYYY"),
+    };
+    const _addExpenses = await User.findOneAndUpdate(
+      { email: _user.email },
+      { $push: { others: temp } },
+      { new: true }
+    );
+    if (!_addExpenses) {
+      return res.status(400).json({ message: "Others Expenses adding failed" });
+    }
+
+    // success
+    return res.status(200).json({
+      message: "Others Expenses added successfully",
+      othesrsExpense: _addExpenses.others,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      message: "Database Error",
+      error,
+    });
+  }
+};
 
 // others cost delete item
 // url: http://localhost:23629/others-cost-delete/:id
 // method: PUT
 const othersCostDelete = async (req, res) => {
-    try {
+  try {
+    // find user from data base
+    const _user = await User.findOne({ email: req.user.email });
+    if (!_user) return res.status(400).json({ message: "User not found." });
 
-        // find user from data base
-        const _user = await User.findOne({ email: req.user.email })
-        if (!_user) return res.status(400).json({ message: 'User not found.' })
+    // delete item
+    const _deleteOthersItem = await User.findOneAndUpdate(
+      { email: _user.email },
+      { $pull: { others: { _id: ObjectId(req.params.id) } } },
+      { new: true }
+    );
 
-        const _deleteOthersItem = await User.findOneAndUpdate(
-            { email: _user.email },
-            { $pull: { others: { 'rent.$': { _id: ObjectId(req.params.id) } } } }
-        )
+    // if any error
+    if (!_deleteOthersItem)
+      return res.status(400).json({ message: "Others Item delete failed." });
 
-        if (!_deleteOthersItem) return res.status(400).json({ message: 'Others Item delete failed.' })
+    // success
+    return res.status(200).json({
+      message: "Deleted Successfully.",
+      othesrsExpense: _deleteOthersItem.others,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      message: "Database Error",
+      error,
+    });
+  }
+};
 
-        // { email: _user.email, 'others.rent._id': ObjectId(req.params.id) },
-        // { $pull: { others: { 'rent.$': { _id: ObjectId(req.params.id) } } } }
-        
+// others cost updates
+// url: http://localhost:23629/others-cost-update
+// method: PUT
+const othersCostUpdate = async (req, res) => {
+  try {
+    const { _id, id2, name, description, category, price, date } = req.body;
 
-        return res.status(200).json({
-            message: 'Deleted Successfully.',
-            _deleteOthersItem: _deleteOthersItem.others
-        })
+    // find user from data base
+    const _user = await User.findOne({ email: req.user.email });
+    if (!_user) return res.status(400).json({ message: "User not found." });
 
-    } catch (error) {
-        return res.status(500).json({
-            message: 'Database Error',
-            error
-        })
-    }
-}
+    // update data
+    const temp = {
+      _id: ObjectId(_id),
+      id2,
+      name,
+      description,
+      category,
+      price,
+      date,
+    };
+    const _updateOthersCost = await User.findOneAndUpdate(
+      {email: _user.email, 'others.id2': req.params.id},
+      {$set:{'others.$':temp}}, 
+      { new: true }
+      );
 
+      // if any error
+      if(!_updateOthersCost) {return res.status(400).json({ message: 'others item updating failed'})}
 
-
-// get others cost data
-// url: http://localhost:23629/others-cost-data
-// method: GET
-const othersCostData = async (req, res) => {
-    try {
-
-        // find user from data base
-        const _user = await User.findOne({ email: req.user.email })
-        if (!_user) return res.status(400).json({ message: 'User not found.' })
-
-
-        // total others cost
-        const totalCostArr = _user.others.map(allCat => {
-            return allCat.rent.map(allCost => {
-                return allCost.tk
-            })
-        })
-
-        const mergeTotalCostArr = totalCostArr.reduce((pre, cur) => {
-            return [...pre, ...cur]
-        })
-
-        const totalCost = mergeTotalCostArr.reduce((pre, cur) => pre + cur)
-
-
-
-        return res.status(200).json({
-            totalCost,
-            all_category: _user.others
-        })
-
-    } catch (error) {
-        console.log(error);
-        return res.status(500).json({
-            message: 'Database Error',
-            error
-        })
-    }
-}
-
+    return res.status(200).json({
+      message: "Successfully updated.",
+      othesrsExpense: _updateOthersCost.others
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      message: "Database Error",
+      error,
+    });
+  }
+};
 
 module.exports = {
-    othersCost,
-    othersCostData,
-    othersCostDelete
-}
+  othersCost,
+  othersCostDelete,
+  othersCostUpdate,
+};

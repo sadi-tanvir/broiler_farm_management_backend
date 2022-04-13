@@ -1,6 +1,6 @@
 const express = require("express")
 const router = express.Router()
-const { chicksBuy, chicksUpdate, chicksDelete, chicksDeath, chicksDeathUpdate,chicksDeathDelete } = require("../controller/chicksController.js")
+const { chicksBuy, chicksUpdate, chicksSalesInfo, chicksDelete, chicksDeath, chicksDeathUpdate,chicksDeathDelete } = require("../controller/chicksController.js")
 const { auth } = require("../middleware/auth.js")
 
 
@@ -11,9 +11,11 @@ router.put('/chicks-buy', auth, chicksBuy)
 // chicks Update route
 router.put('/chicks-update', auth, chicksUpdate)
 
-// chicks Update route
+// chicks delete route
 router.put('/chicks-delete', auth, chicksDelete)
 
+// chicks sales status
+router.put('/chicks-sales-info', auth, chicksSalesInfo)
 
 
 // chicks death route

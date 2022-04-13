@@ -15,9 +15,8 @@ router.post('/login', login)
 // change user information
 router.patch('/change-user-info', auth, changeUserInfo)
 
-
-// all user information delete
-router.delete('/all-user-delete/:id', auth, checkRole(['admin']), allUserDelete)
+// // all user information delete
+// router.delete('/all-user-delete/:id', auth, checkRole(['admin']), allUserDelete)
 
 
 module.exports = router

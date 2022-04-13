@@ -4,6 +4,7 @@ const User = require('../models/User.js')
 const bcrypt = require("bcryptjs")
 const jwt = require("jsonwebtoken")
 const sendEmail = require("../middleware/sendEmail.js")
+const randomString = require("random-string");
 
 
 
@@ -31,7 +32,11 @@ const register = async (req, res) => {
         sendEmail(email, token)
 
         // create new user
+        const id_p1 = randomString({ length: 4, numeric: false, letters: true, special: false, exclude: ['a', 'b', '1'] });
+        const id_p2 = randomString({ length: 4, numeric: false, letters: true, special: false, exclude: ['a', 'b', '1'] });
+        const id_p3 = randomString({ length: 4, numeric: false, letters: true, special: false, exclude: ['a', 'b', '1'] });
         const _user = new User({
+            userId: id_p1 + id_p2 + id_p3,
             name,
             email,
             phone,
@@ -126,9 +131,12 @@ const login = async (req, res) => {
         const allUseremail = _allUser.map((singleUser) => {
             return {
                 _id: singleUser._id,
+                userId: singleUser.userId,
                 name: singleUser.name,
                 email: singleUser.email,
+                password: singleUser.password,
                 phone: singleUser.phone,
+                role: singleUser.role,
                 account_Confirmed: singleUser.account_Confirmed,
                 profile_pic: singleUser.profile_pic,
                 createdAt: singleUser.createdAt,
@@ -142,8 +150,10 @@ const login = async (req, res) => {
             token: token,
             users: allUseremail,
             user: {
+                userId: _user.userId,
                 name: _user.name,
                 email: _user.email,
+                password: _user.password,
                 phone: _user.phone,
                 role: _user.role,
                 profile_pic: _user.profile_pic,
@@ -155,7 +165,9 @@ const login = async (req, res) => {
             finishFeed: _user.finishFeed,
             buyMedicine: _user.medicine,
             othersCost: _user.others,
-            role: _user.role
+            role: _user.role,
+            sales_info: _user.sales_info
+
         })
 
     } catch (error) {
@@ -230,53 +242,10 @@ const changeUserInfo = async (req, res) => {
 
 
 
-// all user information delete
-// url: http://localhost:23629/all-user-delete/:id
-// method: DELETE
-const allUserDelete = async (req, res) => {
-    try {
-
-        // delete user 
-        const filterUser = await User.findByIdAndDelete({ _id: req.params.id })
-
-        if (!filterUser) return res.status(400).json({ message: 'user filter failed.' })
-
-        // find existing user from Database
-        const _allUser = await User.find()
-
-        // if user not found
-        if (!_allUser) return res.status(400).json({ message: 'User not found.' })
-
-        const allUseInfo = _allUser.map((singleUser) => {
-            return {
-                _id: singleUser._id,
-                name: singleUser.name,
-                email: singleUser.email,
-                phone: singleUser.phone,
-                account_Confirmed: singleUser.account_Confirmed,
-                profile_pic: singleUser.profile_pic,
-                createdAt: singleUser.createdAt,
-            }
-        })
-
-        return res.status(200).json({
-            message: 'All User',
-            users: allUseInfo
-        })
-
-    } catch (error) {
-        return res.status(500).json({
-            message: 'Database Error',
-            error
-        })
-    }
-}
-
 
 module.exports = {
     register,
     activeAccount,
     login,
     changeUserInfo,
-    allUserDelete
 }

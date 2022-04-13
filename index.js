@@ -5,6 +5,7 @@ const morgan = require("morgan")
 
 // component import
 require("./DB/db.js")
+const adminRoutes = require("./routes/adminRoutes.js")
 const userRoutes = require("./routes/userRoutes.js")
 const chicksRoute = require("./routes/chicksRoutes.js")
 const feedRoutes = require("./routes/feedRoutes.js")
@@ -26,6 +27,7 @@ app.use(morgan('dev'))
 app.use(express.static('public'))
 
 // routes define
+app.use(adminRoutes)
 app.use(userRoutes)
 app.use(chicksRoute)
 app.use(feedRoutes)
