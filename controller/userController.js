@@ -157,7 +157,8 @@ const login = async (req, res) => {
                 phone: _user.phone,
                 role: _user.role,
                 profile_pic: _user.profile_pic,
-                cover_pic: _user.cover_pic
+                cover_pic: _user.cover_pic,
+                createdAt: _user.createdAt
             },
             buyChicken: _user.Bring_chicks,
             deathChickens: _user.die_chicks,
@@ -227,7 +228,8 @@ const changeUserInfo = async (req, res) => {
                 phone: _changeUserInfo.phone,
                 role: _changeUserInfo.role,
                 profile_pic: _changeUserInfo.profile_pic,
-                cover_pic: _changeUserInfo.cover_pic
+                cover_pic: _changeUserInfo.cover_pic,
+                createdAt: _changeUserInfo.createdAt,
             }
         })
 

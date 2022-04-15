@@ -61,11 +61,11 @@ const userSchema = new mongoose.Schema({
     },
     createdAt: {
         type: String,
-        default: moment().format("DD/MM/YYYY") + " - " + moment().format("hh:mm:ss")
+        default: new Date().toLocaleString()
     },
     updatedAt: {
         type: String,
-        default: moment().format("DD/MM/YYYY") + " - " + moment().format("hh:mm:ss")
+        default: new Date().toLocaleString()
     }
 })
 
