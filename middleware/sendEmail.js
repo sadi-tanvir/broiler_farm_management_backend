@@ -18,7 +18,7 @@ const sendEmail = (email, token) => {
                 <br/>
                 <br/>
                 <br/>
-                <a href="http://localhost:23629/activeAccount/${token}">Confirm Your Email</a>`
+                <a href="https://tanvirhossainsadi.herokuapp.com/activeAccount/${token}">Confirm Your Email</a>`
     };
 
 
