@@ -16,7 +16,7 @@ const userPictureRoutes = require("./routes/userPictureRoutes.js")
 // custom variable
 dotenv.config()
 const app = express()
-const port = process.env.PORT
+const port = process.env.PORT || 23629
 
 // middleware
 app.use(express.json())
