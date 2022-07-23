@@ -72,7 +72,7 @@ const activeAccount = async (req, res) => {
     try {
 
         const _user = await User.findOne({ authToken: req.params.token })
-        if (!_user) return res.status(400).json({ message: 'User not foud.' })
+        if (!_user) return res.status(400).json({ message: 'User not found.' })
 
         _user.account_Confirmed = true
         _user.authToken = 'Account activated'
@@ -83,7 +83,7 @@ const activeAccount = async (req, res) => {
         if (!saveChange) return res.status(400).json({ message: 'user data not saved.' })
 
         // after successfully activated
-        return res.status(200).json({ message: 'User Authentication done succesfully..' })
+        return res.status(200).json({ message: 'You have successfully done your job.' })
 
     } catch (error) {
         return res.status(500).json({
