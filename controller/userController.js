@@ -167,8 +167,8 @@ const login = async (req, res) => {
             buyMedicine: _user.medicine,
             othersCost: _user.others,
             role: _user.role,
-            sales_info: _user.sales_info
-
+            sales_info: _user.sales_info,
+            salesSummary: _user.salesSummary
         })
 
     } catch (error) {

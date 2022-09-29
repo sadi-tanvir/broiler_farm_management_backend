@@ -59,6 +59,18 @@ const userSchema = new mongoose.Schema({
         type: Array,
         default: []
     },
+    salesSummary: [
+        {
+            _id: mongoose.Schema.Types.ObjectId,
+            id2: String,
+            customer: String,
+            description: String,
+            pcs: Number,
+            kg: Number,
+            price: Number,
+            date: String
+        }
+    ],
     createdAt: {
         type: String,
         default: new Date().toLocaleString()

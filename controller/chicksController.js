@@ -167,7 +167,7 @@ const chicksDelete = async (req, res) => {
       message: "Chicks Deleted Successfully",
       chicks: deleleChicks.Bring_chicks,
     });
-  } catch (error) {}
+  } catch (error) { }
 };
 
 // chicks death route
@@ -199,7 +199,7 @@ const chicksDeath = async (req, res) => {
       exclude: ["a", "b", "1"],
     });
 
-    
+
     const temp = {
       _id: ObjectId(),
       id2: id_p1 + id_p2,
@@ -320,6 +320,157 @@ const chicksDeathDelete = async (req, res) => {
   }
 };
 
+
+
+// add chicks sales summary
+// url: http://localhost:23629/chicks-sales-summary
+// method: PUT
+const chicksSalesSummary = async (req, res) => {
+  try {
+    const { customer, description, pcs, kg, price } = req.body;
+
+    // find user from Database
+    const _user = await User.findOne({ email: req.user.email });
+
+    // if user not found
+    if (!_user) return res.status(400).json({ message: "User not found." });
+    console.log("this is temp", customer, description, pcs, kg, price);
+
+    // update chicks Numbers
+    const id_p1 = randomString({
+      length: 8,
+      numeric: false,
+      letters: true,
+      special: false,
+      exclude: ["a", "b", "1"],
+    });
+    const id_p2 = randomString({
+      length: 8,
+      numeric: false,
+      letters: true,
+      special: false,
+      exclude: ["a", "b", "1"],
+    });
+
+    const temp = {
+      _id: ObjectId(),
+      id2: id_p1 + id_p2,
+      customer,
+      description,
+      pcs,
+      kg,
+      price,
+      date: moment().format("MM/DD/YYYY") + " " + moment().format("hh:mm:ss"),
+    };
+
+    // delete death chicks
+    const salesSummary = await User.findOneAndUpdate(
+      { email: _user.email },
+      { $push: { salesSummary: temp } },
+      { new: true }
+    )
+
+    // if not deleted
+    if (!salesSummary) return res.status(400).json({ message: "chicks Sales Summary update failed" });
+
+    // if success
+    return res.status(200).json({
+      message: "chicks Sales Summary update successfully.",
+      salesSummary: salesSummary.salesSummary,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      message: "Database Error",
+      error,
+    });
+  }
+};
+
+
+
+// delete add chicks sales summary
+// url: http://localhost:23629/chicks-sales-summary-delete/:id
+// method: PUT
+const chicksSalesSummaryDelete = async (req, res) => {
+  try {
+    // find user from Database
+    const _user = await User.findOne({ "salesSummary._id": req.params.id });
+    console.log("sssss", _user);
+    // if user not found
+    if (!_user) return res.status(400).json({ message: "Sales field not found." });
+
+    // delete death chicks
+    const _deleteSalesSummary = await User.findOneAndUpdate(
+      { email: _user.email },
+      { $pull: { salesSummary: { _id: ObjectId(req.params.id) } } },
+      { new: true }
+    );
+
+    // if not deleted
+    if (!_deleteSalesSummary) return res.status(400).json({ message: "failed to delete" });
+
+    // if success
+    return res.status(200).json({
+      message: "field deleted successfully.",
+      salesSummary: _deleteSalesSummary.salesSummary,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      message: "Database Error",
+      error,
+    });
+  }
+};
+
+
+
+// update add chicks sales summary
+// url: http://localhost:23629/chicks-death-update/:id
+// method: PUT
+const chicksSalesSummaryUpdate = async (req, res) => {
+  try {
+    const { _id, id2, customer, description, pcs, kg, price, date } = req.body;
+
+    // find user from Database
+    const _user = await User.findOne({ email: req.user.email });
+
+    // if user not found
+    if (!_user) return res.status(400).json({ message: "User not found." });
+
+    // update death count
+    const temp = {
+      _id: ObjectId(_id),
+      id2,
+      customer,
+      description,
+      pcs,
+      kg,
+      price,
+      date,
+    };
+    const _salesUpdate = await User.findOneAndUpdate(
+      { email: _user.email, "salesSummary._id": req.params.id },
+      { $set: { "salesSummary.$": temp } },
+      { new: true }
+    );
+
+    if (!_salesUpdate)
+      return res.status(400).json({ message: "Sales Summary failed to update." });
+
+    return res.status(200).json({
+      message: "Sales Summary updated successfully.",
+      salesSummary: _salesUpdate.salesSummary,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      message: "Database Error",
+      error,
+    });
+  }
+};
+
+
+
 module.exports = {
   chicksBuy,
   chicksUpdate,
@@ -328,4 +479,7 @@ module.exports = {
   chicksDeath,
   chicksDeathUpdate,
   chicksDeathDelete,
+  chicksSalesSummary,
+  chicksSalesSummaryDelete,
+  chicksSalesSummaryUpdate
 };
