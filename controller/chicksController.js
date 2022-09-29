@@ -360,7 +360,7 @@ const chicksSalesSummary = async (req, res) => {
       pcs,
       kg,
       price,
-      date: moment().format("MM/DD/YYYY") + " " + moment().format("hh:mm:ss"),
+      date: moment().format("DD/MM/YYYY") + " " + moment().format("hh:mm:ss"),
     };
 
     // delete death chicks
