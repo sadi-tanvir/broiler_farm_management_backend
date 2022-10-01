@@ -12,7 +12,7 @@ const randomString = require("random-string")
 const feedBringing = async (req, res) => {
     try {
 
-        const { name, category, bag, price } = req.body;
+        const { name,description, category, bag, price } = req.body;
 
 
 
@@ -30,6 +30,7 @@ const feedBringing = async (req, res) => {
             _id: ObjectId(),
             id2: id_p1 + id_p2,
             name,
+            description,
             category,
             bag,
             price,
@@ -94,7 +95,7 @@ const feedDelete = async (req, res) => {
 const feedUpdate = async (req, res) => {
     try {
 
-        const { _id, id2, name, category, bag, price, date } = req.body;
+        const { _id, id2, name,description, category, bag, price, date } = req.body;
 
         // find user from database
         const _user = await User.findOne({ email: req.user.email })
@@ -105,6 +106,7 @@ const feedUpdate = async (req, res) => {
             _id: ObjectId(_id),
             id2,
             name,
+            description,
             category,
             bag,
             price,
