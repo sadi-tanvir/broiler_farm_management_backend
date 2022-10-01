@@ -44,7 +44,7 @@ const profilePicUpload = async (req, res, next) => {
     }
     const _profileUpload = await User.findOneAndUpdate({ email: _user.email }, { $set: temp }, { new: true })
 
-    if (_user.profile_pic !== 'empty-cover-pic.jpg') {
+    if (_user.profile_pic != 'empty-avatar.png') {
         fs.unlinkSync(`./public/profile-pic/${_user.profile_pic}`)
     }
 
